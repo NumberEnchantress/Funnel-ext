@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Logs · One Thing At A Time</title>
+  <link rel="icon" href="../icons/icon.svg">
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .filters input[type="search"] { flex: 1; min-width: 200px; }
+    .tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+    .day { margin: 22px 0 6px; font-weight: 700; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+    .row { display: grid; grid-template-columns: 64px 84px 64px minmax(0, 1fr); gap: 10px; align-items: baseline;
+           padding: 8px 4px; border-bottom: 1px solid var(--line); }
+    .row .time { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12.5px; }
+    .row .site { font-size: 12px; color: var(--muted); }
+    .row .main { min-width: 0; }
+    .row .title { font-weight: 500; overflow-wrap: anywhere; }
+    .row .meta { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+    .row .snippet { font-size: 12.5px; color: var(--muted); margin-top: 2px; overflow-wrap: anywhere; }
+    #more { margin: 18px auto 0; display: flex; }
+    @media (max-width: 640px) {
+      .row { grid-template-columns: 56px 1fr; } .row .site { display: none; } .row .main { grid-column: 1 / -1; }
+      /* The five log filters share the width (and can still scroll on the narrowest screens). */
+      .seg { display: flex; width: 100%; overflow-x: auto; }
+      .seg button { flex: 1 0 auto; justify-content: center; padding: 7px 8px; font-size: 13px; }
+      @media (max-width: 360px) { .seg button { padding: 7px 5px; font-size: 12px; } }
+      .filters select, .filters input[type="search"] { flex: 1 1 100%; min-width: 0; }
+      .tools .spacer { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="top">
+      <div class="brand"><img src="../icons/icon.svg" alt=""><h1>Logs</h1></div>
+      <span class="spacer"></span>
+      <nav class="pages"><a class="here" href="logs.html">Logs</a><a href="later.html">Later</a><a href="options.html">Settings</a></nav>
+    </div>
+
+    <div class="panel">
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <div class="panel">
+      <div class="filters">
+        <div class="seg" id="actionSeg" role="group" aria-label="Log">
+          <button data-action="" aria-pressed="true">All</button>
+          <button data-action="seen" aria-pressed="false">Seen</button>
+          <button data-action="skipped" aria-pressed="false">Skipped</button>
+          <button data-action="deferred" aria-pressed="false">Deferred</button>
+          <button data-action="queued" aria-pressed="false">Queued</button>
+        </div>
+        <select id="site" aria-label="Site">
+          <option value="">All sites</option>
+          <option value="youtube">YouTube</option>
+          <option value="reddit">Reddit</option>
+          <option value="x">X</option>
+        </select>
+        <input type="search" id="q" placeholder="Search titles, authors, links…" aria-label="Search">
+      </div>
+      <div class="tools">
+        <span class="muted small">Export what is shown:</span>
+        <button id="exportMd">Markdown</button>
+        <button id="exportCsv">CSV</button>
+        <button id="exportJson">JSON</button>
+        <button id="copyMd" title="Copy what is shown as text, to paste into a note or file">Copy</button>
+        <span class="spacer" style="flex:1"></span>
+        <button id="folder" class="desktop-only" title="Open the folder with your log files">Open log folder</button>
+        <button id="sync" class="desktop-only" title="Write any pending entries to the log files now">Write files now</button>
+      </div>
+      <div class="small muted" id="fileStatus" style="margin-top:8px"></div>
+    </div>
+
+    <div id="list" aria-live="polite"></div>
+    <button id="more" hidden>Load more</button>
+  </div>
+  <script src="../shared/format.js"></script>
+  <script src="common.js"></script>
+  <script src="logs.js"></script>
+</body>
+</html>

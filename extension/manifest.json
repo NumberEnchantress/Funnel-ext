@@ -1,0 +1,93 @@
+{
+  "manifest_version": 3,
+  "name": "One Thing At A Time",
+  "version": "1.1.1",
+  "description": "Shows recommendation feeds on YouTube, X and Reddit one item at a time, and keeps a local log of everything you see.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "one-thing-at-a-time@otaat",
+      "strict_min_version": "128.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    },
+    "gecko_android": {
+      "strict_min_version": "128.0"
+    }
+  },
+  "icons": {
+    "48": "icons/icon.svg",
+    "96": "icons/icon.svg"
+  },
+  "permissions": ["storage", "unlimitedStorage", "downloads", "nativeMessaging", "alarms"],
+  "host_permissions": [
+    "*://*.youtube.com/*",
+    "*://*.reddit.com/*",
+    "*://x.com/*",
+    "*://*.x.com/*",
+    "*://twitter.com/*",
+    "*://*.twitter.com/*"
+  ],
+  "background": {
+    "scripts": [
+      "shared/settings.js",
+      "shared/format.js",
+      "background/db.js",
+      "background/sinks.js",
+      "background/main.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://www.youtube.com/*", "*://m.youtube.com/*"],
+      "js": ["content/yt-main.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "*://www.youtube.com/*",
+        "*://m.youtube.com/*",
+        "*://www.reddit.com/*",
+        "*://reddit.com/*",
+        "*://x.com/*",
+        "*://twitter.com/*",
+        "*://mobile.x.com/*"
+      ],
+      "js": [
+        "shared/settings.js",
+        "content/core.js",
+        "content/ui.js",
+        "content/sites/youtube.js",
+        "content/sites/reddit.js",
+        "content/sites/x.js",
+        "content/engine.js"
+      ],
+      "css": ["content/hide.css"],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_title": "One Thing At A Time",
+    "default_popup": "pages/popup.html",
+    "default_icon": "icons/icon.svg"
+  },
+  "options_ui": {
+    "page": "pages/options.html",
+    "open_in_tab": true
+  },
+  "commands": {
+    "otaat-next": {
+      "suggested_key": { "default": "Alt+Shift+N" },
+      "description": "Next: skip the current item"
+    },
+    "otaat-later": {
+      "suggested_key": { "default": "Alt+Shift+L" },
+      "description": "Later: defer the current item"
+    },
+    "otaat-queue": {
+      "suggested_key": { "default": "Alt+Shift+Q" },
+      "description": "Queue: add the current YouTube video to the play queue"
+    }
+  }
+}

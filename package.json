@@ -1,0 +1,19 @@
+{
+  "name": "one-thing-at-a-time",
+  "version": "1.1.1",
+  "private": true,
+  "description": "Firefox extension: one feed item at a time on YouTube, X and Reddit, with local logs of everything shown.",
+  "scripts": {
+    "test": "node --test tests/",
+    "test:host": "python -I tests/native_host_test.py",
+    "lint": "web-ext lint --source-dir extension",
+    "build": "web-ext build --source-dir extension --artifacts-dir dist --overwrite-dest",
+    "start": "web-ext run --source-dir extension --start-url https://www.youtube.com/",
+    "check": "npm test && npm run test:host && npm run lint"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "^6.2.5",
+    "jsdom": "^26.1.0",
+    "web-ext": "^8.9.0"
+  }
+}

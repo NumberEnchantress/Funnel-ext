@@ -1,0 +1,53 @@
+<main role="main">
+  <div data-testid="primaryColumn">
+    <div style="position: sticky; top: 0px;"><h2 role="heading">Home</h2></div>
+    <div aria-label="Home timeline">
+      <section role="region">
+        <div style="position: relative; min-height: 4000px;">
+          <div data-testid="cellInnerDiv" style="transform: translateY(0px); position: absolute; width: 100%;">
+            <article data-testid="tweet" role="article" tabindex="0">
+              <div data-testid="User-Name">
+                <div><a href="/alice" role="link"><span>Alice Example</span></a></div>
+                <div><a href="/alice" role="link"><span>@alice</span></a><span>·</span><a href="/alice/status/1111111111111111111" role="link"><time datetime="2026-10-14T10:00:00.000Z">2h</time></a></div>
+              </div>
+              <div data-testid="tweetText" lang="en"><span>Hello world, this is the first post.</span></div>
+              <div role="group"><button data-testid="reply"></button><button data-testid="retweet"></button><button data-testid="like"></button><button data-testid="bookmark"></button></div>
+            </article>
+          </div>
+          <div data-testid="cellInnerDiv" style="transform: translateY(400px); position: absolute; width: 100%;">
+            <article data-testid="tweet" role="article" tabindex="0">
+              <div data-testid="User-Name">
+                <div><a href="/brand" role="link"><span>Brand Co</span></a></div>
+                <div><a href="/brand" role="link"><span>@brand</span></a></div>
+              </div>
+              <div data-testid="tweetText" lang="en"><span>Buy our thing.</span></div>
+              <a href="/brand/status/2222222222222222222" role="link">details</a>
+              <div><span>Ad</span></div>
+            </article>
+          </div>
+          <div data-testid="cellInnerDiv" style="transform: translateY(800px); position: absolute; width: 100%;">
+            <div><h2 role="heading"><span>Who to follow</span></h2></div>
+          </div>
+          <div data-testid="cellInnerDiv" style="transform: translateY(900px); position: absolute; width: 100%;">
+            <article data-testid="tweet" role="article" tabindex="0">
+              <div data-testid="User-Name">
+                <div><a href="/bob" role="link"><span>Bob</span></a></div>
+                <div><a href="/bob" role="link"><span>@bob</span></a><span>·</span><a href="/bob/status/3333333333333333333" role="link"><time datetime="2026-10-14T09:00:00.000Z">3h</time></a></div>
+              </div>
+              <div data-testid="tweetText" lang="en"><span>Quoting something interesting</span></div>
+              <div role="link" tabindex="0">
+                <div><span>Carol</span><span>@carol</span><a href="/carol/status/4444444444444444444"><time datetime="2026-10-13T09:00:00.000Z">Oct 13</time></a></div>
+                <div lang="en">The quoted post</div>
+              </div>
+              <div role="group"><button data-testid="reply"></button><button data-testid="bookmark"></button></div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+  <div data-testid="sidebarColumn">
+    <form role="search"><input data-testid="SearchBox_Search_Input" type="search"></form>
+    <section aria-label="Trending"><div>Trending now</div></section>
+  </div>
+</main>

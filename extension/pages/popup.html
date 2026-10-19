@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>One Thing At A Time</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    body { width: 330px; }
+    /* Firefox for Android shows the popup as a full-screen page. */
+    html.android body { width: auto; }
+    html.android .wrap { padding: 16px; gap: 14px; }
+    html.android .grid button, html.android .grid .button { min-height: 48px; font-size: 15px; }
+    .wrap { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+    .head { display: flex; align-items: center; gap: 8px; }
+    .head img { width: 22px; height: 22px; }
+    .head b { font-size: 15px; }
+    .stats .stat { min-width: 0; flex: 1; padding: 6px 8px; }
+    .stats .stat b { font-size: 17px; }
+    .tab { background: var(--chip); border-radius: 10px; padding: 10px 12px; }
+    .tab .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .grid button, .grid .button { justify-content: center; }
+    .files { font-size: 12px; }
+    .current { margin-top: 6px; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="head"><img src="../icons/icon.svg" alt=""><b>One Thing At A Time</b></div>
+
+    <div>
+      <div class="muted small" style="margin-bottom:6px">Today</div>
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <div class="tab" id="tab">
+      <div id="tabText" class="muted">This tab: not YouTube, X or Reddit.</div>
+      <div class="current muted" id="current" hidden></div>
+      <div class="row" id="pauseRow" hidden>
+        <span id="pauseLabel"></span>
+        <button id="pause"></button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <button class="primary" id="logs">Open logs</button>
+      <button id="later">Later list</button>
+      <a class="button" id="wl" href="https://www.youtube.com/playlist?list=WL" target="_blank" rel="noopener">YouTube Watch later</a>
+      <button id="folder" class="desktop-only">Open log folder</button>
+    </div>
+
+    <div class="files muted" id="files">Checking file output…</div>
+    <button id="options">Settings</button>
+  </div>
+  <script src="../shared/settings.js"></script>
+  <script src="common.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

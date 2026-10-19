@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Settings · One Thing At A Time</title>
+  <link rel="icon" href="../icons/icon.svg">
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .panel h2 { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    label.opt { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; cursor: pointer; }
+    label.opt input { margin-top: 3px; }
+    label.opt small { display: block; color: var(--muted); }
+    .field { display: flex; flex-direction: column; gap: 4px; padding: 6px 0; }
+    .field input[type="text"] { width: 100%; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+    #welcome { border-color: var(--accent); }
+    #fileStatus { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: var(--chip); }
+    ol { padding-left: 20px; }
+    ol li { margin: 4px 0; }
+    .site-head { display: flex; align-items: center; justify-content: space-between; }
+    .saved { font-size: 12px; color: var(--ok); opacity: 0; transition: opacity .2s; }
+    .saved.show { opacity: 1; }
+    table.keys td { padding: 3px 12px 3px 0; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="top">
+      <div class="brand"><img src="../icons/icon.svg" alt=""><h1>Settings</h1></div>
+      <span class="saved" id="saved">Saved</span>
+      <span class="spacer"></span>
+      <nav class="pages"><a href="logs.html">Logs</a><a href="later.html">Later</a><a class="here" href="options.html">Settings</a></nav>
+    </div>
+
+    <div class="panel" id="welcome" hidden>
+      <h2>Welcome</h2>
+      <p>One Thing At A Time is ready. Open YouTube, X or Reddit: recommendation feeds now show one item at a time,
+        with <b>Next</b>, <b>Later</b> and (on YouTube) <b>Queue</b> buttons at the bottom of the page.</p>
+      <p class="android-only">Everything you see is logged and kept in Firefox (see <a href="logs.html">Logs</a>). Phones can't write files on their own, so use <b>Export</b> or <b>Copy</b> on the Logs page to save them — and do so now and then, because logs kept only in Firefox are lost if the extension is removed.</p>
+      <p class="desktop-only">Everything you see is logged. The logs live in this browser (see <a href="logs.html">Logs</a>) and are also written as
+        plain files — out of the box into your <b>Downloads</b> folder. For instant, quieter writing into a folder of your choice,
+        set up the native file writer under <a href="#files">Files</a>.</p>
+    </div>
+
+    <div class="cols">
+      <div class="panel">
+        <div class="site-head"><h2>YouTube</h2><label><input type="checkbox" data-path="paused.youtube"> Paused</label></div>
+        <p class="muted small">Shown one at a time:</p>
+        <label class="opt"><input type="checkbox" data-path="surfaces.youtube.home"><span>Home</span></label>
+        <label class="opt"><input type="checkbox" data-path="surfaces.youtube.subscriptions"><span>Subscriptions feed</span></label>
+        <label class="opt"><input type="checkbox" data-path="surfaces.youtube.shorts"><span>Shorts player <small>adds the buttons; Shorts are already one at a time</small></span></label>
+        <label class="opt"><input type="checkbox" data-path="surfaces.youtube.channel"><span>Channel video tabs <small>a channel's own uploads (off by default: profile feeds)</small></span></label>
+        <p class="muted small">Hide:</p>
+        <label class="opt"><input type="checkbox" data-path="hide.ytRelated"><span>Recommended videos on the watch page</span></label>
+        <label class="opt"><input type="checkbox" data-path="hide.ytEndscreen"><span>End-of-video suggestions and fullscreen "more videos"</span></label>
+        <label class="opt"><input type="checkbox" data-path="hide.ytSearchShelves"><span>Shelves injected into search results <small>Shorts, "For you", "People also watched"</small></span></label>
+        <label class="opt"><input type="checkbox" data-path="hide.ytAutoplay"><span>Keep autoplay off <small>so the next recommended video doesn't start by itself; your queue still plays</small></span></label>
+      </div>
+
+      <div class="panel">
+        <div class="site-head"><h2>Reddit</h2><label><input type="checkbox" data-path="paused.reddit"> Paused</label></div>
+        <p class="muted small">Shown one at a time:</p>
+        <label class="opt"><input type="checkbox" data-path="surfaces.reddit.home"><span>Home</span></label>
+        <label class="opt"><input type="checkbox" data-path="surfaces.reddit.popular"><span>Popular</span></label>
+        <label class="opt"><input type="checkbox" data-path="surfaces.reddit.all"><span>All</span></label>
+        <label class="opt"><input type="checkbox" data-path="surfaces.reddit.subreddit"><span>Subreddit feeds</span></label>
+        <label class="opt"><input type="checkbox" data-path="surfaces.reddit.customFeed"><span>Custom feeds</span></label>
+        <label class="opt"><input type="checkbox" data-path="surfaces.reddit.user"><span>User profiles <small>off by default: profile feeds</small></span></label>
+        <p class="muted small">Hide:</p>
+        <label class="opt"><input type="checkbox" data-path="hide.redditRelated"><span>Posts under the comments and beside a post</span></label>
+        <label class="opt"><input type="checkbox" data-path="hide.redditSidebar"><span>Sidebar post lists and popular communities</span></label>
+      </div>
+
+      <div class="panel">
+        <div class="site-head"><h2>X</h2><label><input type="checkbox" data-path="paused.x"> Paused</label></div>
+        <p class="muted small">Shown one at a time:</p>
+        <label class="opt"><input type="checkbox" data-path="surfaces.x.home"><span>Home (For you and Following)</span></label>
+        <label class="opt"><input type="checkbox" data-path="surfaces.x.lists"><span>Lists</span></label>
+        <label class="opt"><input type="checkbox" data-path="surfaces.x.profile"><span>Profiles <small>off by default: profile feeds</small></span></label>
+        <p class="muted small">Hide:</p>
+        <label class="opt"><input type="checkbox" data-path="hide.xSidebar"><span>Trending / who to follow sidebar <small>search box stays</small></span></label>
+        <label class="opt"><input type="checkbox" data-path="hide.xDiscover"><span>"Discover more" under a post's replies</span></label>
+        <label class="opt"><input type="checkbox" data-path="xBookmarkOnLater"><span>Later also bookmarks the post on X</span></label>
+      </div>
+    </div>
+
+    <div class="cols">
+      <div class="panel">
+        <h2>Sorting</h2>
+        <label class="opt"><input type="checkbox" data-path="skipSorted"><span>Never show an item again once sorted <small>anything you pressed Next, Later or Queue on stays out of your feeds</small></span></label>
+        <label class="opt"><input type="checkbox" data-path="queueAdvances"><span>Queue also moves on to the next item</span></label>
+        <label class="opt"><input type="checkbox" data-path="hide.ads"><span>Hide ads and promoted items</span></label>
+        <div class="field"><span>Button bar position</span>
+          <select data-path="barPosition"><option value="bottom">Bottom of the page</option><option value="top">Top of the page</option></select>
+        </div>
+        <p class="muted small desktop-only">Keyboard: <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>N</kbd> Next · <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd> Later ·
+          <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>Q</kbd> Queue. Change them in <code>about:addons</code> → ⚙ → Manage Extension Shortcuts.</p>
+      </div>
+
+      <div class="panel">
+        <h2>Logging</h2>
+        <label class="opt"><input type="checkbox" data-path="logSightings"><span>Log items I scroll past on normal pages <small>profiles, search results, channel pages, replies</small></span></label>
+        <div class="field"><span>Counts as seen when this much of it is on screen</span>
+          <select data-path="sightingThreshold" data-type="number">
+            <option value="0.25">A quarter</option><option value="0.5">Half</option><option value="0.75">Three quarters</option><option value="1">All of it</option>
+          </select>
+        </div>
+        <div class="field"><span>Log the same item as seen again after (hours, 0 = every time)</span>
+          <input type="number" min="0" max="8760" step="1" data-path="seenRepeatHours" data-type="number">
+        </div>
+        <p class="muted small">Next, Later and Queue are always logged, every time.</p>
+      </div>
+    </div>
+
+    <div class="panel" id="files">
+      <h2>Files</h2>
+      <p class="muted small" style="margin-top:-4px">Each day gets a folder (inside a folder for its month, e.g. <code>2026-10\2026-10-14</code>) with
+        <code>seen.md</code>, <code>skipped.md</code>, <code>deferred.md</code>, <code>queued.md</code> (readable in any text editor)
+        and <code>events.jsonl</code> (every detail, machine-readable).</p>
+      <p class="small android-only">Firefox for Android can't write files on its own (it has no native file writer and no downloads access for add-ons). So on your phone the logs are kept inside Firefox: open <a href="logs.html">Logs</a> and use <b>Export</b> or <b>Copy</b> to save them whenever you like. <b>Export now and then</b>: logs kept only inside Firefox are deleted if you remove the extension or clear its data.</p>
+      <label class="opt"><input type="radio" name="fileOutput" value="auto"><span>Automatic <small class="desktop-only">native file writer when installed, otherwise the Downloads folder</small><small class="android-only">keep logs in Firefox; export or copy them from the Logs page</small></span></label>
+      <label class="opt desktop-only"><input type="radio" name="fileOutput" value="native"><span>Native file writer only <small>appends instantly to the folder below</small></span></label>
+      <label class="opt desktop-only"><input type="radio" name="fileOutput" value="downloads"><span>Downloads folder only <small>no setup; new entries arrive within about 20 seconds</small></span></label>
+      <label class="opt"><input type="radio" name="fileOutput" value="off"><span>Off <small>keep logs only inside the browser</small></span></label>
+      <div class="cols" style="margin-top:6px">
+        <div class="field desktop-only"><span>Native writer folder <small class="muted">(empty = the folder chosen when the writer was installed)</small></span>
+          <input type="text" data-path="nativeFolder" placeholder="e.g. C:\Users\me\Documents\OneThingAtATime" spellcheck="false">
+        </div>
+        <div class="field desktop-only"><span>Subfolder inside Downloads</span>
+          <input type="text" data-path="downloadsFolder" spellcheck="false">
+        </div>
+      </div>
+      <div id="fileStatus" class="small">Checking…</div>
+      <div class="row">
+        <button id="test" class="desktop-only">Check native writer</button>
+        <button id="sync" class="desktop-only">Write pending entries now</button>
+        <button id="rebuild" class="desktop-only" title="Write the full history kept in this browser to the files again (use after deleting or moving the files)">Write full history again</button>
+        <button id="folder" class="desktop-only">Open log folder</button>
+      </div>
+      <details class="desktop-only" style="margin-top:14px">
+        <summary><b>Set up the native file writer</b> (one time, about a minute)</summary>
+        <ol>
+          <li>Install Python 3 if you don't have it (<a href="https://www.python.org/downloads/" target="_blank" rel="noopener">python.org</a>).</li>
+          <li>In the One Thing At A Time project folder (next to the <code>extension</code> folder), open <code>native</code> and run
+            <code>install-windows.ps1</code> (right-click → Run with PowerShell). On macOS / Linux run <code>./install-unix.sh</code>.</li>
+          <li>Come back here and press <b>Check native writer</b>.</li>
+        </ol>
+        <p class="muted small">The writer is a small Python script that only accepts messages from this extension
+          (<code id="extId"></code>) and only writes inside the log folder.</p>
+      </details>
+    </div>
+
+    <div class="panel">
+      <h2>Data</h2>
+      <p class="small" id="totals"></p>
+      <div class="row">
+        <button id="resetSorted" title="Items you already sorted can show up in feeds again. Logs are not touched.">Let sorted items show up again</button>
+      </div>
+    </div>
+  </div>
+  <script src="../shared/settings.js"></script>
+  <script src="common.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

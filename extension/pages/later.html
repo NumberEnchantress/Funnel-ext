@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Later · One Thing At A Time</title>
+  <link rel="icon" href="../icons/icon.svg">
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .yt { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+    .yt p { margin: 0; flex: 1; min-width: 240px; }
+    .filters { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+    .item { display: grid; grid-template-columns: 120px minmax(0, 1fr) auto; gap: 14px; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .item.done { opacity: .55; }
+    .thumb { width: 120px; height: 68px; border-radius: 8px; background: var(--chip); object-fit: cover; display: block; }
+    .thumb.blank { display: grid; place-items: center; color: var(--muted); font-size: 12px; }
+    .item > a { text-decoration: none; }
+    .title { font-weight: 600; overflow-wrap: anywhere; }
+    .meta { font-size: 12px; color: var(--muted); margin-top: 2px; overflow-wrap: anywhere; }
+    .snippet { font-size: 12.5px; color: var(--muted); margin-top: 4px; overflow-wrap: anywhere; }
+    .actions { display: flex; gap: 6px; }
+    @media (max-width: 640px) {
+      /* Phones: a small picture beside the text, buttons underneath; no empty placeholders. */
+      .item { grid-template-columns: 96px minmax(0, 1fr); gap: 10px 12px; align-items: start; }
+      .thumb { width: 96px; height: 54px; }
+      .item > a:has(.thumb.blank), .thumb.blank { display: none; }
+      .item:has(.thumb.blank) { grid-template-columns: minmax(0, 1fr); }
+      .actions { grid-column: 1 / -1; }
+      .actions button { flex: 1; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="top">
+      <div class="brand"><img src="../icons/icon.svg" alt=""><h1>Later</h1></div>
+      <span class="spacer"></span>
+      <nav class="pages"><a href="logs.html">Logs</a><a class="here" href="later.html">Later</a><a href="options.html">Settings</a></nav>
+    </div>
+
+    <div class="panel yt">
+      <p><b>YouTube:</b> videos you send to Later go straight into your YouTube <b>Watch later</b> playlist,
+        which is private to your account (so it can't be embedded here).<span class="desktop-only"> Videos you <b>Queue</b> are in YouTube's
+        mini-player queue in the tab you queued them from.</span></p>
+      <a class="button primary" href="https://www.youtube.com/playlist?list=WL" target="_blank" rel="noopener">Open Watch later ↗</a>
+    </div>
+
+    <div class="panel">
+      <h2>Later list <span class="muted small" id="count"></span></h2>
+      <p class="muted small" style="margin-top:-4px">Posts from X and Reddit (and YouTube items that couldn't go into Watch later) that you deferred.
+        Every Later is also recorded in the <a href="logs.html#deferred">deferred log</a>, even after you mark it done or remove it here.</p>
+      <div class="filters">
+        <select id="site" aria-label="Site">
+          <option value="">All sites</option>
+          <option value="x">X</option>
+          <option value="reddit">Reddit</option>
+          <option value="youtube">YouTube</option>
+        </select>
+        <label><input type="checkbox" id="showDone"> Show done</label>
+      </div>
+      <div id="list"></div>
+    </div>
+  </div>
+  <script src="../shared/format.js"></script>
+  <script src="common.js"></script>
+  <script src="later.js"></script>
+</body>
+</html>

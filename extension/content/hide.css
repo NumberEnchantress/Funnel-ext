@@ -1,0 +1,221 @@
+/*
+ * One Thing At A Time — hiding rules.
+ * Every rule is gated by attributes the content script sets on <html>, so nothing changes
+ * on pages (or settings) where the extension is not active.
+ *   otaat-q          feed is shown one item at a time      otaat-mode   collapse | spotlight
+ *   otaat-loadmore   briefly reveal the feed's loader      otaat-hide-* individual hide switches
+ */
+
+/* ===================================================================== generic feed */
+
+html[otaat-q][otaat-mode="collapse"] [otaat-item]:not([otaat-current]) {
+  display: none !important;
+}
+html[otaat-q][otaat-mode="spotlight"] [otaat-item]:not([otaat-current]) {
+  visibility: hidden !important;
+}
+
+/*
+ * A feed you just left (e.g. by opening an item) can stay on screen for a moment while the site builds the
+ * next page. Its container is marked otaat-retired until it is gone, and stays one-at-a-time on its own,
+ * so the rest of the feed never flashes into view. These mirror the rules for live feeds below, but apply
+ * only inside that container (plus html[otaat-retiring] for the few feed extras outside it).
+ */
+[otaat-retired="collapse"] [otaat-item]:not([otaat-current]) {
+  display: none !important;
+}
+[otaat-retired="spotlight"] [otaat-item]:not([otaat-current]),
+[otaat-retired="spotlight"] > :not([otaat-current]) {
+  visibility: hidden !important;
+}
+ytd-rich-grid-renderer[otaat-retired] > #contents > :not([otaat-current]):not([otaat-has-current]),
+ytm-rich-grid-renderer[otaat-retired] .rich-grid-renderer-contents > :not([otaat-current]):not([otaat-has-current]),
+:is(ytd-rich-grid-renderer, ytm-rich-grid-renderer)[otaat-retired] :is(ytd-rich-item-renderer, ytm-rich-item-renderer):not([otaat-current]),
+ytd-rich-grid-renderer[otaat-retired] ytd-rich-shelf-renderer[otaat-has-current] :is(#show-more-button, #dismissible-button, .button-container),
+shreddit-feed[otaat-retired] > :not([otaat-current]):not([otaat-has-current]),
+html[otaat-retiring][otaat-site="reddit"] community-highlight-carousel,
+html[otaat-retiring][otaat-site="x"] [data-testid="pillLabel"] {
+  display: none !important;
+}
+ytd-rich-grid-renderer[otaat-retired] {
+  --ytd-rich-grid-items-per-row: 1 !important;
+  --ytd-rich-grid-slim-items-per-row: 1 !important;
+  --ytd-rich-grid-posts-per-row: 1 !important;
+}
+ytd-rich-grid-renderer[otaat-retired] ytd-rich-item-renderer[otaat-current] {
+  width: min(720px, calc(100% - 32px)) !important;
+  max-width: 720px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+ytd-rich-grid-renderer[otaat-retired] ytd-rich-item-renderer[otaat-current]:has(ytm-shorts-lockup-view-model, ytm-shorts-lockup-view-model-v2) {
+  width: min(320px, calc(100% - 32px)) !important;
+}
+
+/* ===================================================================== YouTube */
+
+/* Feed grid: only the current item (and the shelf that contains it) stays. */
+html[otaat-q][otaat-site="youtube"] ytd-rich-grid-renderer > #contents > :not([otaat-current]):not([otaat-has-current]):not(ytd-continuation-item-renderer),
+html[otaat-q][otaat-site="youtube"] ytd-rich-grid-renderer ytd-rich-item-renderer:not([otaat-current]) {
+  display: none !important;
+}
+/* The grid's "load more" trigger stays hidden, or YouTube would load the whole feed forever. */
+html[otaat-q][otaat-site="youtube"]:not([otaat-loadmore]) ytd-rich-grid-renderer ytd-continuation-item-renderer {
+  display: none !important;
+}
+html[otaat-q][otaat-site="youtube"] ytd-rich-grid-renderer {
+  --ytd-rich-grid-items-per-row: 1 !important;
+  --ytd-rich-grid-slim-items-per-row: 1 !important;
+  --ytd-rich-grid-posts-per-row: 1 !important;
+}
+html[otaat-q][otaat-site="youtube"] ytd-rich-item-renderer[otaat-current] {
+  width: min(720px, calc(100% - 32px)) !important;
+  max-width: 720px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+html[otaat-q][otaat-site="youtube"] ytd-rich-item-renderer[otaat-current]:has(ytm-shorts-lockup-view-model, ytm-shorts-lockup-view-model-v2) {
+  width: min(320px, calc(100% - 32px)) !important;
+}
+/* Shelf chrome (titles stay, "show more" / dismiss controls go). */
+html[otaat-q][otaat-site="youtube"] ytd-rich-shelf-renderer[otaat-has-current] :is(#show-more-button, #dismissible-button, .button-container) {
+  display: none !important;
+}
+
+/* m.youtube.com (Firefox for Android): the same one-item grid, with ytm-* elements. Already one column. */
+html[otaat-q][otaat-site="youtube"] ytm-rich-grid-renderer .rich-grid-renderer-contents > :not([otaat-current]):not([otaat-has-current]):not(ytm-continuation-item-renderer),
+html[otaat-q][otaat-site="youtube"] ytm-rich-grid-renderer ytm-rich-item-renderer:not([otaat-current]) {
+  display: none !important;
+}
+html[otaat-q][otaat-site="youtube"]:not([otaat-loadmore]) ytm-rich-grid-renderer ytm-continuation-item-renderer {
+  display: none !important;
+}
+html[otaat-hide-yt-related] :is(ytm-watch, ytm-single-column-watch-next-results-renderer) .related-items-container {
+  display: none !important;
+}
+html[otaat-hide-yt-search] ytm-search :is(ytm-reel-shelf-renderer, grid-shelf-view-model, ytm-shelf-renderer, ytm-horizontal-card-list-renderer) {
+  display: none !important;
+}
+html[otaat-hide-ads][otaat-site="youtube"] :is(
+  ytm-ad-slot-renderer,
+  ytm-promoted-sparkles-web-renderer,
+  ytm-promoted-video-renderer,
+  ytm-companion-slot,
+  ytm-rich-item-renderer:has(ytm-ad-slot-renderer, ad-slot-renderer)
+) {
+  display: none !important;
+}
+
+/* Watch page: recommended videos (side column and below the video). */
+html[otaat-hide-yt-related] :is(ytd-watch-next-secondary-results-renderer, ytd-watch-flexy #related) {
+  display: none !important;
+}
+
+/* End-of-video wall, fullscreen "more videos" grid, autoplay countdown, suggestion cards. */
+html[otaat-hide-yt-endscreen] :is(
+  .ytp-endscreen-content,
+  .ytp-fullscreen-grid,
+  .ytp-fullscreen-grid-peeking,
+  .ytp-autonav-endscreen-countdown-overlay,
+  .ytp-autonav-endscreen-upnext-container,
+  .ytp-ce-video,
+  .ytp-ce-playlist,
+  .ytp-pause-overlay,
+  .ytp-suggestion-set,
+  .videowall-endscreen
+) {
+  display: none !important;
+}
+
+/* Search results: recommendation shelves YouTube injects between results (Shorts, "For you", "People also watched"). */
+html[otaat-hide-yt-search] ytd-search :is(grid-shelf-view-model, ytd-shelf-renderer, ytd-reel-shelf-renderer, ytd-horizontal-card-list-renderer) {
+  display: none !important;
+}
+
+html[otaat-hide-ads][otaat-site="youtube"] :is(
+  ytd-search-pyv-renderer,
+  ytd-ad-slot-renderer,
+  ytd-in-feed-ad-layout-renderer,
+  ytd-banner-promo-renderer,
+  ytd-statement-banner-renderer,
+  ytd-promoted-sparkles-web-renderer,
+  ytd-display-ad-renderer,
+  #masthead-ad,
+  #player-ads,
+  ytd-rich-item-renderer:has(ytd-ad-slot-renderer),
+  ytd-rich-section-renderer:has(ytd-statement-banner-renderer, ytd-banner-promo-renderer)
+) {
+  display: none !important;
+}
+
+/* ===================================================================== Reddit */
+
+html[otaat-q][otaat-site="reddit"] shreddit-feed > :not([otaat-current]):not([otaat-has-current]):not(faceplate-partial[slot="load-after"]),
+html[otaat-q][otaat-site="reddit"] shreddit-feed :is(hr, shreddit-ad-post),
+html[otaat-q][otaat-site="reddit"] community-highlight-carousel {
+  display: none !important;
+}
+html[otaat-q][otaat-site="reddit"]:not([otaat-loadmore]) shreddit-feed faceplate-partial[slot="load-after"] {
+  display: none !important;
+}
+html[otaat-q][otaat-site="reddit"][otaat-loadmore] shreddit-feed:not([otaat-retired]) faceplate-partial[slot="load-after"] {
+  display: block !important;
+}
+
+/* Posts under the comments and beside a post. */
+html[otaat-hide-reddit-related] :is(#mosaic-pdp-feed, pdp-right-rail, reddit-pdp-right-rail-post, shreddit-related-posts) {
+  display: none !important;
+}
+
+/* Sidebar post lists everywhere; the whole sidebar on Home / Popular / All (it is only lists there). */
+html[otaat-hide-reddit-sidebar] :is(recent-posts, reddit-recent-pages),
+html[otaat-hide-reddit-sidebar] #right-sidebar-container :is(ul, ol):has(a[href*="/comments/"]),
+html[otaat-hide-reddit-sidebar]:is([otaat-surface="home"], [otaat-surface="popular"], [otaat-surface="all"]) #right-sidebar-container {
+  display: none !important;
+}
+
+html[otaat-hide-ads][otaat-site="reddit"] :is(
+  shreddit-ad-post,
+  shreddit-sidebar-ad,
+  shreddit-comments-page-ad,
+  shreddit-comment-tree-ads,
+  shreddit-post[promoted]
+) {
+  display: none !important;
+}
+
+/* ===================================================================== X / Twitter */
+
+/* Timeline posts other than the current one: invisible but still laid out (the list is virtualized). */
+html[otaat-q][otaat-site="x"] [data-testid="primaryColumn"] [data-testid="cellInnerDiv"]:not([otaat-current]),
+html[otaat-q][otaat-site="x"] main [id^="urt:"] > ul > li:not([otaat-current]) {
+  visibility: hidden !important;
+}
+/* "Show N posts" pills would only insert more posts above. */
+html[otaat-q][otaat-site="x"] [data-testid="pillLabel"] {
+  display: none !important;
+}
+
+/* Trending / who to follow sidebar. The search box stays usable. */
+html[otaat-hide-x-sidebar] [data-testid="sidebarColumn"],
+html[otaat-hide-x-sidebar] main ~ aside {
+  visibility: hidden !important;
+}
+html[otaat-hide-x-sidebar] [data-testid="sidebarColumn"] :is(form[role="search"], [role="listbox"], [data-testid^="typeahead"]),
+html[otaat-hide-x-sidebar] main ~ aside :is(form, [role="search"], [role="combobox"], [role="listbox"]) {
+  visibility: visible !important;
+}
+
+/* "Who to follow" blocks inside profile timelines (invisible, not removed: the list is virtualized). */
+html[otaat-hide-x-sidebar][otaat-surface="profile"] [data-testid="primaryColumn"] [data-testid="cellInnerDiv"]:is(
+  :has([data-testid="UserCell"]),
+  :has(a[href^="/i/connect_people"]),
+  :has(> div > div > h2)
+) {
+  visibility: hidden !important;
+}
+
+/* "Discover more" (and everything after it) under a post's replies. */
+html[otaat-hide-x-discover] [otaat-discover] {
+  visibility: hidden !important;
+}
