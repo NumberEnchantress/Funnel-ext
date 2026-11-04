@@ -287,7 +287,8 @@
     keepMarks();
     if (isNew && x.info.key !== state.lastShownKey) state.shownCount++;
     state.lastShownKey = x.info.key;
-    reveal(x.el);
+    fitStage();
+    keepInView(x.el, reveal(x.el));
     logSeen(x.info, state.surface.name);
     topUp();
     updateBar();
@@ -394,6 +395,7 @@
     const shown = !!anchor;
     if (!anchor) anchor = base.keys().next().value; // nothing on show: the first item is just a landmark
     box.setAttribute('otaat-retired', state.surface.mode);
+    box.setAttribute('otaat-from', state.surface.name); // which feed it was (for its CSS while it is still up)
     retired.set(box, {
       since: Date.now(),
       page: pageOf(state.url), // (still the address of the page being left)
@@ -447,6 +449,7 @@
   function unretire(box) {
     retired.delete(box);
     box.removeAttribute('otaat-retired');
+    box.removeAttribute('otaat-from');
     clearMarksIn(box);
     watchRetired();
     applyFlags();
@@ -540,6 +543,24 @@
     return Math.min(bottom, window.innerHeight / 2);
   }
 
+  /**
+   * The space between the top of the feed and the button bar, given to the feed's CSS as --otaat-stage so
+   * the one item on show can sit in the middle of it instead of at the top of an empty page. Only when the
+   * feed starts high on the page (Home): under a tall header (a channel page) the item stays where it is.
+   */
+  function fitStage() {
+    const root = state.root;
+    if (!root || state.surface.mode !== 'collapse') return;
+    const top = root.getBoundingClientRect().top + window.scrollY;
+    const reserved = O.ui.reservedBottom();
+    // Room below the feed as tall as the bar, so the item can always be scrolled clear of it.
+    root.style.setProperty('--otaat-clear', `${reserved}px`);
+    const space = Math.round(window.innerHeight - reserved - top - 8);
+    if (top < window.innerHeight * 0.4 && space > 0) root.style.setProperty('--otaat-stage', `${space}px`);
+    else root.style.removeProperty('--otaat-stage');
+  }
+  const scheduleFitStage = U.throttle(fitStage, 200);
+
   function reveal(el) {
     const rect = el.getBoundingClientRect();
     const offset = topOffset(el) + 8;
@@ -552,7 +573,45 @@
       const delta =
         state.surface.mode !== 'spotlight' && fits && rect.top >= offset ? rect.bottom - bottomLimit : rect.top - offset;
       window.scrollTo({ top: Math.max(0, window.scrollY + delta), behavior: 'instant' });
+      return delta !== 0;
     }
+    return false;
+  }
+
+  /**
+   * The page often keeps moving for a moment after an item is shown (a channel header's pictures load and
+   * push the feed down), which could leave the item under the bar or the site's bottom tabs. Keep it in view
+   * while the page settles: for a few seconds, and only until the user scrolls themself.
+   */
+  const SETTLE_MS = 3000;
+  let settling = null;
+  function keepInView(el, justScrolled) {
+    if (settling) settling();
+    if (state.surface.mode !== 'collapse' || typeof ResizeObserver === 'undefined') return;
+    let ours = justScrolled; // that scroll's event is still to come
+    const onScroll = () => {
+      if (ours) ours = false;
+      else stop(); // the user scrolled: leave the page where they put it
+    };
+    let stopped = false;
+    const ro = new ResizeObserver(() => {
+      if (stopped) return;
+      if (state.current !== el || !el.isConnected) return stop();
+      fitStage();
+      if (reveal(el)) ours = true;
+    });
+    const timer = setTimeout(() => stop(), SETTLE_MS);
+    function stop() {
+      stopped = true;
+      ro.disconnect();
+      window.removeEventListener('scroll', onScroll);
+      clearTimeout(timer);
+      if (settling === stop) settling = null;
+    }
+    settling = stop;
+    ro.observe(document.body);
+    ro.observe(el);
+    window.addEventListener('scroll', onScroll, { passive: true });
   }
 
   // ---------------------------------------------------------------- loading more
@@ -1017,6 +1076,7 @@
     clearInterval(urlTimer);
     clearTimeout(seenTimer);
     clearTimeout(leaveTimer);
+    if (settling) settling();
   }
 
   function start() {
@@ -1037,6 +1097,7 @@
         if (retired.size) checkRetired(); // e.g. the site re-used the old feed's elements in place
       }, 300);
       window.addEventListener('popstate', onUrlMaybeChanged);
+      window.addEventListener('resize', scheduleFitStage, { passive: true });
       document.addEventListener('yt-navigate-finish', onUrlMaybeChanged);
     });
 

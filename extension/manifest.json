@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "One Thing At A Time",
-  "version": "1.1.1",
+  "version": "1.1.4",
   "description": "Shows recommendation feeds on YouTube, X and Reddit one item at a time, and keeps a local log of everything you see.",
   "browser_specific_settings": {
     "gecko": {

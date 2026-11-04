@@ -756,3 +756,70 @@ test('X: posts trimmed from the timeline behind a modal do not count as a new pa
   const visible = [...list.children].filter((c) => window.getComputedStyle(c).visibility !== 'hidden');
   assert.equal(visible.length, 1);
 });
+
+// ---- No empty page around the one item ----
+
+test('The one item is given the free space below a feed that starts high up (to sit in its middle)', async () => {
+  const { document, window } = youtubeHome();
+  await until(() => current(document).length === 1, 'a current video');
+  const grid = document.querySelector('ytd-rich-grid-renderer');
+  const stage = parseInt(grid.style.getPropertyValue('--otaat-stage'), 10);
+  assert.ok(stage > 0 && stage < window.innerHeight, `space given: ${stage}`);
+});
+
+test('...but not below a tall page header (the item would drift away from it)', async () => {
+  const { document } = youtubeHome({
+    beforeScripts(w) {
+      w.ytcfg = { get: (k) => k === 'LOGGED_IN' };
+      w.document.querySelector('ytd-app').resolveCommand = () => true;
+      const grid = w.document.querySelector('ytd-rich-grid-renderer');
+      grid.getBoundingClientRect = () => ({ top: 500, bottom: 900, left: 0, right: 800, width: 800, height: 400, x: 0, y: 500 });
+    },
+  });
+  await until(() => current(document).length === 1, 'a current video');
+  assert.equal(document.querySelector('ytd-rich-grid-renderer').style.getPropertyValue('--otaat-stage'), '');
+});
+
+test('An item pushed under the bar while the page settles is brought back into view, until the user scrolls', async () => {
+  const observers = [];
+  const scrolls = [];
+  const { document, window } = youtubeHome({
+    beforeScripts(w) {
+      w.ytcfg = { get: (k) => k === 'LOGGED_IN' };
+      w.document.querySelector('ytd-app').resolveCommand = () => true;
+      w.ResizeObserver = class {
+        constructor(cb) { this.cb = cb; observers.push(this); }
+        observe() {}
+        disconnect() { this.off = true; }
+      };
+      w.scrollTo = (o) => scrolls.push(o.top);
+    },
+  });
+  await until(() => current(document).length === 1, 'a current video');
+  const item = current(document)[0];
+  const H = window.innerHeight;
+  if (scrolls.length) window.dispatchEvent(new window.Event('scroll')); // the first reveal's own scroll
+  const before = scrolls.length;
+  // The channel header's pictures load: the item now sits half under the bottom edge.
+  item.getBoundingClientRect = () => ({ top: H - 100, bottom: H + 200, left: 0, right: 600, width: 600, height: 300, x: 0, y: H - 100 });
+  const ro = observers.find((o) => !o.off);
+  ro.cb([]);
+  assert.equal(scrolls.length, before + 1, 'scrolled to bring it back');
+  window.dispatchEvent(new window.Event('scroll')); // (our own scroll)
+  window.dispatchEvent(new window.Event('scroll')); // the user scrolls
+  ro.cb([]);
+  assert.equal(scrolls.length, before + 1, 'then leaves the page where the user put it');
+  assert.ok(ro.off, 'and stops watching');
+});
+
+test('A retired feed says which feed it was (for its own CSS) until it is let go', async () => {
+  const { document, window } = youtubeHome();
+  await until(() => current(document).length === 1, 'a current video');
+  const grid = document.querySelector('ytd-rich-grid-renderer');
+  window.history.pushState({}, '', '/watch?v=NiCgcUTL9_Q');
+  await until(() => grid.hasAttribute('otaat-retired'), 'retired on leaving');
+  assert.equal(grid.getAttribute('otaat-from'), 'home');
+  document.querySelector('ytd-browse').hidden = true;
+  await until(() => !grid.hasAttribute('otaat-retired'), 'let go');
+  assert.ok(!grid.hasAttribute('otaat-from'));
+});

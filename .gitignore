@@ -2,3 +2,8 @@ node_modules/
 dist/
 web-ext-artifacts/
 __pycache__/
+# Private: real viewing logs, signing bookkeeping, and the personal Android brief.
+OTAAT/
+.otaat-state.json
+.amo-upload-uuid
+docs/ANDROID-APP-BRIEF.md

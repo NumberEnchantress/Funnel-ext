@@ -15,11 +15,15 @@
     .head { display: flex; align-items: center; gap: 8px; }
     .head img { width: 22px; height: 22px; }
     .head b { font-size: 15px; }
-    .stats .stat { min-width: 0; flex: 1; padding: 6px 8px; }
+    .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .stats .stat { padding: 6px 8px; }
     .stats .stat b { font-size: 17px; }
     .tab { background: var(--chip); border-radius: 10px; padding: 10px 12px; }
     .tab .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    /* No hole beside a lone last button (on phones the desktop-only last one is hidden). */
+    .grid > :last-child:nth-child(odd),
+    html.android .grid > :nth-child(odd):has(+ .desktop-only:last-child) { grid-column: 1 / -1; }
     .grid button, .grid .button { justify-content: center; }
     .files { font-size: 12px; }
     .current { margin-top: 6px; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

@@ -43,16 +43,42 @@ ytd-rich-grid-renderer[otaat-retired] {
   --ytd-rich-grid-posts-per-row: 1 !important;
 }
 ytd-rich-grid-renderer[otaat-retired] ytd-rich-item-renderer[otaat-current] {
-  width: min(720px, calc(100% - 32px)) !important;
-  max-width: 720px !important;
+  width: var(--otaat-card) !important;
+  max-width: none !important;
   margin-left: auto !important;
   margin-right: auto !important;
 }
 ytd-rich-grid-renderer[otaat-retired] ytd-rich-item-renderer[otaat-current]:has(ytm-shorts-lockup-view-model, ytm-shorts-lockup-view-model-v2) {
-  width: min(320px, calc(100% - 32px)) !important;
+  width: var(--otaat-short-card) !important;
 }
 
 /* ===================================================================== YouTube */
+
+/*
+ * The one item on show is sized to the window, so it fills the space the rest of the feed used to take:
+ * as wide as fits with its title and the bar still on screen (a Short: as tall as fits).
+ */
+html[otaat-site="youtube"] {
+  --otaat-card: min(1280px, calc(100% - 32px), max(400px, calc((100vh - 300px) * 16 / 9)));
+  --otaat-short-card: min(360px, calc(100% - 32px), max(240px, calc((100vh - 300px) * 9 / 16)));
+}
+
+/*
+ * Watch page with the recommendations hidden: their column goes too (unless it holds a playlist, live chat
+ * or an open panel such as the transcript), and the video is centred, sized so its title stays on screen.
+ */
+html[otaat-hide-yt-related] ytd-watch-flexy:not([theater]):not([fullscreen]):not(:has(#secondary :is(ytd-playlist-panel-renderer:not([hidden]), ytd-live-chat-frame, ytd-engagement-panel-section-list-renderer[visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"], ytd-donation-shelf-renderer:not([hidden])))) #secondary {
+  display: none !important;
+}
+html[otaat-hide-yt-related] ytd-watch-flexy:not([theater]):not([fullscreen]):not(:has(#secondary :is(ytd-playlist-panel-renderer:not([hidden]), ytd-live-chat-frame, ytd-engagement-panel-section-list-renderer[visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"], ytd-donation-shelf-renderer:not([hidden])))) #primary {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: min(1280px, calc((100vh - 246px) * 16 / 9 + 48px)) !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
 
 /* Feed grid: only the current item (and the shelf that contains it) stays. */
 html[otaat-q][otaat-site="youtube"] ytd-rich-grid-renderer > #contents > :not([otaat-current]):not([otaat-has-current]):not(ytd-continuation-item-renderer),
@@ -63,19 +89,35 @@ html[otaat-q][otaat-site="youtube"] ytd-rich-grid-renderer ytd-rich-item-rendere
 html[otaat-q][otaat-site="youtube"]:not([otaat-loadmore]) ytd-rich-grid-renderer ytd-continuation-item-renderer {
   display: none !important;
 }
+/* (YouTube caps the grid at one column's width; the one item may be wider than a grid column) */
+html[otaat-q][otaat-site="youtube"] ytd-rich-grid-renderer > #contents,
+ytd-rich-grid-renderer[otaat-retired] > #contents {
+  max-width: none !important;
+}
 html[otaat-q][otaat-site="youtube"] ytd-rich-grid-renderer {
   --ytd-rich-grid-items-per-row: 1 !important;
   --ytd-rich-grid-slim-items-per-row: 1 !important;
   --ytd-rich-grid-posts-per-row: 1 !important;
 }
 html[otaat-q][otaat-site="youtube"] ytd-rich-item-renderer[otaat-current] {
-  width: min(720px, calc(100% - 32px)) !important;
-  max-width: 720px !important;
+  width: var(--otaat-card) !important;
+  max-width: none !important;
   margin-left: auto !important;
   margin-right: auto !important;
 }
 html[otaat-q][otaat-site="youtube"] ytd-rich-item-renderer[otaat-current]:has(ytm-shorts-lockup-view-model, ytm-shorts-lockup-view-model-v2) {
-  width: min(320px, calc(100% - 32px)) !important;
+  width: var(--otaat-short-card) !important;
+}
+/* Room below the one item as tall as the bar (--otaat-clear), so it can always be scrolled clear of it. */
+html[otaat-q][otaat-mode="collapse"] :is(ytd-rich-grid-renderer, ytm-rich-grid-renderer, shreddit-feed),
+:is(ytd-rich-grid-renderer, ytm-rich-grid-renderer, shreddit-feed)[otaat-retired] {
+  padding-bottom: var(--otaat-clear, 0px) !important;
+}
+/* The one item sits in the middle of the free space (--otaat-stage, set only where the feed starts high up). */
+html[otaat-q][otaat-site="youtube"] ytd-rich-grid-renderer > #contents,
+ytd-rich-grid-renderer[otaat-retired] > #contents {
+  min-height: var(--otaat-stage, 0px) !important;
+  align-content: center !important;
 }
 /* Shelf chrome (titles stay, "show more" / dismiss controls go). */
 html[otaat-q][otaat-site="youtube"] ytd-rich-shelf-renderer[otaat-has-current] :is(#show-more-button, #dismissible-button, .button-container) {
@@ -87,9 +129,94 @@ html[otaat-q][otaat-site="youtube"] ytm-rich-grid-renderer .rich-grid-renderer-c
 html[otaat-q][otaat-site="youtube"] ytm-rich-grid-renderer ytm-rich-item-renderer:not([otaat-current]) {
   display: none !important;
 }
+html[otaat-q][otaat-site="youtube"] ytm-rich-grid-renderer .rich-grid-renderer-contents,
+ytm-rich-grid-renderer[otaat-retired] .rich-grid-renderer-contents {
+  min-height: var(--otaat-stage, 0px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+/* Channel pages list videos as small rows: the one on show becomes a full-width card, picture on top. */
+html[otaat-q][otaat-site="youtube"] ytm-rich-item-renderer[otaat-current],
+ytm-rich-grid-renderer[otaat-retired] ytm-rich-item-renderer[otaat-current] {
+  display: block !important;
+  width: 100% !important;
+}
+:is(html[otaat-q][otaat-site="youtube"], ytm-rich-grid-renderer[otaat-retired]) ytm-rich-item-renderer[otaat-current] .YtmCompactMediaItemHost {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+}
+:is(html[otaat-q][otaat-site="youtube"], ytm-rich-grid-renderer[otaat-retired]) ytm-rich-item-renderer[otaat-current] .YtmCompactMediaItemImage {
+  width: 100% !important;
+  max-width: none !important;
+}
+:is(html[otaat-q][otaat-site="youtube"], ytm-rich-grid-renderer[otaat-retired]) ytm-rich-item-renderer[otaat-current] .YtmCompactMediaItemImage ytm-compact-thumbnail {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 16 / 9 !important;
+}
+:is(html[otaat-q][otaat-site="youtube"], ytm-rich-grid-renderer[otaat-retired]) ytm-rich-item-renderer[otaat-current] .YtmCompactMediaItemMetadata {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
 html[otaat-q][otaat-site="youtube"]:not([otaat-loadmore]) ytm-rich-grid-renderer ytm-continuation-item-renderer {
   display: none !important;
 }
+/*
+ * Home and Subscriptions on the phone site: the one video as a featured card, inset with rounded corners and
+ * larger text, so it holds the screen. (Also while the feed is retired, so it doesn't snap back meanwhile.)
+ */
+:is(html:is([otaat-q="home"], [otaat-q="subscriptions"]), [otaat-retired]:is([otaat-from="home"], [otaat-from="subscriptions"])) ytm-rich-item-renderer[otaat-current] {
+  padding: 0 12px !important;
+  box-sizing: border-box !important;
+}
+:is(html:is([otaat-q="home"], [otaat-q="subscriptions"]), [otaat-retired]:is([otaat-from="home"], [otaat-from="subscriptions"])) ytm-rich-item-renderer[otaat-current] :is(yt-thumbnail-view-model, .media-item-thumbnail-container, ytm-thumbnail-cover) {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+:is(html:is([otaat-q="home"], [otaat-q="subscriptions"]), [otaat-retired]:is([otaat-from="home"], [otaat-from="subscriptions"])) ytm-rich-item-renderer[otaat-current] :is(h3, h3 *) {
+  font-size: 20px !important;
+  line-height: 26px !important;
+}
+:is(html:is([otaat-q="home"], [otaat-q="subscriptions"]), [otaat-retired]:is([otaat-from="home"], [otaat-from="subscriptions"])) ytm-rich-item-renderer[otaat-current] :is(yt-content-metadata-view-model, ytm-badge-and-byline-renderer) :is(span, div) {
+  font-size: 14px !important;
+  line-height: 20px !important;
+}
+/* Titles: room for three lines at the larger size (YouTube caps them at two lines of its own size). */
+:is(html:is([otaat-q="home"], [otaat-q="subscriptions"]), [otaat-retired]:is([otaat-from="home"], [otaat-from="subscriptions"])) ytm-rich-item-renderer[otaat-current] h3 * {
+  max-height: none !important;
+  -webkit-line-clamp: 3 !important;
+}
+/* A video from a shelf ("Breaking news", …) gets the full width too, not its narrow place in the row
+   (YouTube puts an inline width on shelf items, hence !important). */
+:is(html:is([otaat-q="home"], [otaat-q="subscriptions"]), [otaat-retired]:is([otaat-from="home"], [otaat-from="subscriptions"])) .rich-shelf-content[otaat-has-current] {
+  overflow: visible !important;
+  justify-content: center !important;
+}
+:is(html:is([otaat-q="home"], [otaat-q="subscriptions"]), [otaat-retired]:is([otaat-from="home"], [otaat-from="subscriptions"])) .rich-shelf-content > ytm-rich-item-renderer[otaat-current] {
+  width: 100% !important;
+  max-width: none !important;
+  flex: 1 1 100% !important;
+  margin: 0 !important;
+}
+/* Shorts are tall: centred, at a width that still fits the screen. */
+:is(html:is([otaat-q="home"], [otaat-q="subscriptions"]), [otaat-retired]:is([otaat-from="home"], [otaat-from="subscriptions"])) ytm-rich-item-renderer[otaat-current]:has(ytm-shorts-lockup-view-model, ytm-shorts-lockup-view-model-v2, ytm-reel-item-renderer) {
+  width: min(62vw, 300px) !important;
+  flex: 0 0 auto !important;
+  margin: 0 auto !important;
+}
+
+/* Shorts player: only the active Short is visible (a smooth scroll after Next would show a strip of the next). */
+html[otaat-surface="shorts"][otaat-mode="native"] shorts-carousel:has(.ytShortsCarouselCarouselItem[aria-hidden="false"]) .ytShortsCarouselCarouselItem[aria-hidden="true"] {
+  visibility: hidden !important;
+}
+
+/* The phone site's "Open App" header button (a link into the YouTube app). */
+html[otaat-site="youtube"] :is(.mobile-topbar-header-sign-in-button:has(a[href^="intent:"]), ytm-button-renderer:has(> a[href^="intent:"])) {
+  display: none !important;
+}
+
 html[otaat-hide-yt-related] :is(ytm-watch, ytm-single-column-watch-next-results-renderer) .related-items-container {
   display: none !important;
 }
@@ -162,6 +289,13 @@ html[otaat-q][otaat-site="reddit"][otaat-loadmore] shreddit-feed:not([otaat-reti
   display: block !important;
 }
 
+/* The one post sits in the middle of the free space (--otaat-stage, set only where the feed starts high up). */
+html[otaat-q][otaat-site="reddit"] shreddit-feed,
+shreddit-feed[otaat-retired] {
+  min-height: var(--otaat-stage, 0px) !important;
+  justify-content: center !important;
+}
+
 /* Posts under the comments and beside a post. */
 html[otaat-hide-reddit-related] :is(#mosaic-pdp-feed, pdp-right-rail, reddit-pdp-right-rail-post, shreddit-related-posts) {
   display: none !important;
@@ -172,6 +306,11 @@ html[otaat-hide-reddit-sidebar] :is(recent-posts, reddit-recent-pages),
 html[otaat-hide-reddit-sidebar] #right-sidebar-container :is(ul, ol):has(a[href*="/comments/"]),
 html[otaat-hide-reddit-sidebar]:is([otaat-surface="home"], [otaat-surface="popular"], [otaat-surface="all"]) #right-sidebar-container {
   display: none !important;
+}
+/* ...and its column goes with it: the feed is centred instead of leaving an empty column on the right. */
+html[otaat-hide-reddit-sidebar]:is([otaat-surface="home"], [otaat-surface="popular"], [otaat-surface="all"]) .main-container:has(> #right-sidebar-container) {
+  grid-template-columns: minmax(0, 760px) !important;
+  justify-content: center !important;
 }
 
 html[otaat-hide-ads][otaat-site="reddit"] :is(

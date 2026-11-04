@@ -28,6 +28,11 @@
       @media (max-width: 360px) { .seg button { padding: 7px 5px; font-size: 12px; } }
       .filters select, .filters input[type="search"] { flex: 1 1 100%; min-width: 0; }
       .tools .spacer { display: none; }
+      /* Export: the label on its own line, then the four buttons as one even row. */
+      .tools { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+      .tools > .muted { grid-column: 1 / -1; }
+      .tools > button { justify-content: center; padding-left: 4px; padding-right: 4px; }
+      .tools > .desktop-only { grid-column: span 2; }
     }
   </style>
 </head>
