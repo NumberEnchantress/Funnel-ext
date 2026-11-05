@@ -262,6 +262,22 @@
     );
   }
 
+  /**
+   * The phone site keeps its autoplay switch in the PREF cookie (f5=30000 off, f5=20000 on), so it can be set
+   * off at the source there, where the switch itself is only on screen after the player controls have shown.
+   * Only while "Keep autoplay off" is on; the other PREF settings are kept. Desktop YouTube ignores f5 for
+   * autoplay (it keeps the choice per tab), so there the switch-flipping guard does the job.
+   */
+  function autoplayOffInPrefs() {
+    const m = document.cookie.match(/(?:^|;s*)PREF=([^;]*)/);
+    const parts = (m ? m[1] : '').split('&').filter((p) => p && !p.startsWith('f5='));
+    parts.push('f5=30000');
+    const value = parts.join('&');
+    if (m && m[1] === value) return;
+    // Same domain and path as YouTube's own PREF, so it replaces it instead of adding a second one.
+    document.cookie = `PREF=${value}; domain=.youtube.com; path=/; max-age=${2 * 365 * 24 * 3600}; secure; samesite=lax`;
+  }
+
   O.adapters.youtube = {
     site: 'youtube',
     matches: (host) => /(^|\.)youtube\.com$/.test(host),
@@ -442,6 +458,7 @@
     },
 
     onPage(surf, settings) {
+      if (settings.hide.ytAutoplay && isMobile()) autoplayOffInPrefs();
       call('autoplayGuard', { on: surf.name === 'watch' && !!settings.hide.ytAutoplay });
     },
   };

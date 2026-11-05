@@ -1,6 +1,6 @@
 {
   "name": "one-thing-at-a-time",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "private": true,
   "description": "Firefox extension: one feed item at a time on YouTube, X and Reddit, with local logs of everything shown.",
   "scripts": {

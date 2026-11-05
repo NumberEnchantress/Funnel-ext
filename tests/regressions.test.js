@@ -823,3 +823,38 @@ test('A retired feed says which feed it was (for its own CSS) until it is let go
   await until(() => !grid.hasAttribute('otaat-retired'), 'let go');
   assert.ok(!grid.hasAttribute('otaat-from'));
 });
+
+function phoneHome(cookie, settings) {
+  return makePage({
+    url: 'https://m.youtube.com/',
+    bodyHtml: fixture('m-youtube-grid.html'),
+    withBridge: true,
+    settings,
+    beforeScripts(w) {
+      w.document.cookie = `PREF=${cookie}; domain=.youtube.com; path=/`;
+    },
+  });
+}
+const prefOf = (doc) => (doc.cookie.match(/(?:^|;\s*)PREF=([^;]*)/) || [])[1];
+
+test('Keep autoplay off (phone site): YouTube\'s own autoplay preference is switched off at the source, other prefs kept', async () => {
+  const { document } = phoneHome('tz=Etc.UTC&f5=20000&f6=40000000');
+  await until(() => current(document).length === 1, 'a current video');
+  assert.deepEqual(prefOf(document).split('&').sort(), ['f5=30000', 'f6=40000000', 'tz=Etc.UTC']);
+  assert.equal(document.cookie.match(/PREF=/g).length, 1, 'one PREF cookie, not two');
+});
+
+test('...left alone when the setting is off, and on desktop YouTube (which keeps autoplay elsewhere)', async () => {
+  const off = phoneHome('f5=20000', { hide: { ytAutoplay: false } });
+  await until(() => current(off.document).length === 1, 'a current video');
+  assert.equal(prefOf(off.document), 'f5=20000');
+  const { document } = youtubeHome({
+    beforeScripts(w) {
+      w.ytcfg = { get: (k) => k === 'LOGGED_IN' };
+      w.document.querySelector('ytd-app').resolveCommand = () => true;
+      w.document.cookie = 'PREF=f5=20000; domain=.youtube.com; path=/';
+    },
+  });
+  await until(() => current(document).length === 1, 'a current video');
+  assert.equal(prefOf(document), 'f5=20000');
+});

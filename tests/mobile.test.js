@@ -252,3 +252,24 @@ test('Bar placement: controls it does not cover change nothing', async () => {
   assert.equal(wrap.style.getPropertyValue('--otaat-bottom'), '0px');
   assert.equal(wrap.style.getPropertyValue('--otaat-right'), '');
 });
+
+test('m.youtube.com watch page: the phone site\'s autoplay switch is turned off too (once it is on screen)', async () => {
+  const body = `<div id="movie_player" class="html5-video-player playing-mode"></div>`;
+  let clicks = 0;
+  const { document } = makePage({ url: 'https://m.youtube.com/watch?v=NiCgcUTL9_Q', bodyHtml: body, withBridge: true });
+  await sleep(1700);
+  assert.equal(clicks, 0, 'nothing to do while the controls (and so the switch) are hidden');
+  // The user taps the video: the controls, and the switch, appear.
+  const sw = document.createElement('button');
+  sw.className = 'ytwAutonavToggleButtonHost';
+  sw.setAttribute('aria-pressed', 'true');
+  sw.setAttribute('aria-label', 'Autoplay is on');
+  sw.addEventListener('click', () => {
+    clicks++;
+    sw.setAttribute('aria-pressed', 'false');
+    sw.setAttribute('aria-label', 'Autoplay is off');
+  });
+  document.querySelector('#movie_player').append(sw);
+  await until(() => sw.getAttribute('aria-pressed') === 'false', 'autoplay switched off', 4000);
+  assert.equal(clicks, 1);
+});

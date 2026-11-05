@@ -178,7 +178,10 @@ The extension also works in Firefox for Android (version 128 or newer), and on n
   at a time on Home and Subscriptions, related videos hidden, and Shorts with Next/Later. YouTube's mobile
   site has no play queue, so there is no **Queue** button there. **Later** saves to Watch later through
   YouTube's own API and logs what YouTube answered. If YouTube refuses or doesn't answer, the video goes
-  on the extension's Later list instead. *Keep autoplay off* works on desktop YouTube only.
+  on the extension's Later list instead. *Keep autoplay off* also works on the phone site: it switches YouTube's
+  autoplay switch off whenever it is on screen (it appears with the player controls), and asks YouTube for
+  "off" through its own preference cookie. In Firefox that cookie isn't always honoured, so a video can
+  still autoplay the next one if the controls were never shown.
 - **Reddit and X** use their normal pages at phone width, so the extension behaves as on desktop.
 - **Logs on Android:** Firefox for Android gives add-ons no way to write files on their own (no native
   file writer, no downloads access). So on Android your logs are kept in Firefox. Open **Logs** (⋯ → Logs)

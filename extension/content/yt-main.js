@@ -114,14 +114,16 @@
   function guardTick() {
     if (location.pathname !== '/watch') return;
     const player = document.querySelector('#movie_player');
-    const btn = player && player.querySelector('.ytp-autonav-toggle-button');
+    // Desktop's switch, or the phone site's (there only while the player controls are on screen).
+    const btn = player && (player.querySelector('.ytp-autonav-toggle-button') || document.querySelector('button.ytwAutonavToggleButtonHost'));
     if (!btn || player.classList.contains('ad-showing') || player.classList.contains('unstarted-mode')) return;
+    const isOn = btn.matches('.ytwAutonavToggleButtonHost') ? btn.getAttribute('aria-pressed') === 'true' : btn.getAttribute('aria-checked') === 'true';
     const video = new URLSearchParams(location.search).get('v') || '';
     if (video !== guard.video) {
       guard.video = video;
       guard.clicks = 0;
     }
-    if (btn.getAttribute('aria-checked') === 'true' && guard.clicks < 2) {
+    if (isOn && guard.clicks < 2) {
       (btn.closest('button') || btn).click();
       guard.clicks++;
     }
