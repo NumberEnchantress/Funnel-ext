@@ -269,7 +269,7 @@
    * autoplay (it keeps the choice per tab), so there the switch-flipping guard does the job.
    */
   function autoplayOffInPrefs() {
-    const m = document.cookie.match(/(?:^|;s*)PREF=([^;]*)/);
+    const m = document.cookie.match(/(?:^|;\s*)PREF=([^;]*)/);
     const parts = (m ? m[1] : '').split('&').filter((p) => p && !p.startsWith('f5='));
     parts.push('f5=30000');
     const value = parts.join('&');

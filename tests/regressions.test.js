@@ -858,3 +858,19 @@ test('...left alone when the setting is off, and on desktop YouTube (which keeps
   await until(() => current(document).length === 1, 'a current video');
   assert.equal(prefOf(document), 'f5=20000');
 });
+
+test('Keep autoplay off (phone site): PREF behind other cookies keeps its other settings too', async () => {
+  const { document } = makePage({
+    url: 'https://m.youtube.com/',
+    bodyHtml: fixture('m-youtube-grid.html'),
+    withBridge: true,
+    beforeScripts(w) {
+      w.document.cookie = 'VISITOR_INFO1_LIVE=abc; domain=.youtube.com; path=/';
+      w.document.cookie = 'PREF=tz=Etc.UTC&f5=20000&f7=100; domain=.youtube.com; path=/';
+    },
+  });
+  await until(() => current(document).length === 1, 'a current video');
+  assert.ok(!document.cookie.startsWith('PREF='), 'PREF is not the first cookie here');
+  assert.deepEqual(prefOf(document).split('&').sort(), ['f5=30000', 'f7=100', 'tz=Etc.UTC']);
+  assert.equal(document.cookie.match(/PREF=/g).length, 1);
+});
