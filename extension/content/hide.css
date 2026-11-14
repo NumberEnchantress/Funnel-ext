@@ -238,11 +238,18 @@ html[otaat-hide-yt-related] :is(ytd-watch-next-secondary-results-renderer, ytd-w
   display: none !important;
 }
 
-/* End-of-video wall, fullscreen "more videos" grid, autoplay countdown, suggestion cards. */
+/*
+ * End-of-video wall, fullscreen "more videos" grid (and its button), autoplay countdown, suggestion cards.
+ * Never the player itself: YouTube also puts some of these names on the player as state classes (in
+ * fullscreen it adds ytp-fullscreen-grid-peeking to it), and hiding it left fullscreen showing only the
+ * blurred glow behind the video.
+ */
 html[otaat-hide-yt-endscreen] :is(
   .ytp-endscreen-content,
   .ytp-fullscreen-grid,
-  .ytp-fullscreen-grid-peeking,
+  .ytp-fullscreen-grid-hover-overlay,
+  .ytp-fullscreen-grid-expand-button,
+  .ytp-more-videos-button,
   .ytp-autonav-endscreen-countdown-overlay,
   .ytp-autonav-endscreen-upnext-container,
   .ytp-ce-video,
@@ -250,7 +257,7 @@ html[otaat-hide-yt-endscreen] :is(
   .ytp-pause-overlay,
   .ytp-suggestion-set,
   .videowall-endscreen
-) {
+):not(.html5-video-player, #movie_player) {
   display: none !important;
 }
 

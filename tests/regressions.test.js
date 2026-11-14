@@ -874,3 +874,17 @@ test('Keep autoplay off (phone site): PREF behind other cookies keeps its other 
   assert.deepEqual(prefOf(document).split('&').sort(), ['f5=30000', 'f7=100', 'tz=Etc.UTC']);
   assert.equal(document.cookie.match(/PREF=/g).length, 1);
 });
+
+test('Fullscreen YouTube: hiding the "more videos" grid never hides the player itself', () => {
+  const { document, window } = makePage({
+    url: 'https://example.com/',
+    bodyHtml: `<div id="movie_player" class="html5-video-player ytp-fullscreen-grid-peeking ytp-fullscreen-grid">
+      <video></video><div class="ytp-fullscreen-grid"></div><button class="ytp-more-videos-button"></button></div>`,
+  });
+  withHideCss(document);
+  document.documentElement.setAttribute('otaat-hide-yt-endscreen', '');
+  const shown = (el) => window.getComputedStyle(el).display !== 'none';
+  assert.ok(shown(document.querySelector('#movie_player')), 'the player stays (YouTube marks it with grid classes in fullscreen)');
+  assert.ok(!shown(document.querySelector('#movie_player > .ytp-fullscreen-grid')), 'the grid itself is hidden');
+  assert.ok(!shown(document.querySelector('.ytp-more-videos-button')), 'and the button that opens it');
+});
