@@ -273,3 +273,39 @@ test('m.youtube.com watch page: the phone site\'s autoplay switch is turned off 
   await until(() => sw.getAttribute('aria-pressed') === 'false', 'autoplay switched off', 4000);
   assert.equal(clicks, 1);
 });
+
+function fullscreenPhonePage(settings) {
+  let closes = 0;
+  const page = makePage({
+    url: 'https://m.youtube.com/watch?v=NiCgcUTL9_Q',
+    bodyHtml: `<div id="movie_player" class="html5-video-player"><div class="fullscreen-controls">
+      <div class="icon-close"><button aria-label="Close"></button></div></div></div>`,
+    settings,
+    beforeScripts(w) {
+      Object.defineProperty(w.document, 'fullscreenElement', { get: () => w.document.querySelector('#movie_player'), configurable: true });
+      const controls = w.document.querySelector('.fullscreen-controls');
+      w.document.querySelector('.icon-close button').addEventListener('click', () => {
+        closes++;
+        controls.classList.remove('expanded');
+      });
+    },
+  });
+  return { ...page, closes: () => closes };
+}
+
+test('m.youtube.com fullscreen: the "More videos" row is closed as soon as it opens (YouTube\'s own Close button)', async () => {
+  const { document, closes } = fullscreenPhonePage();
+  await sleep(200);
+  document.querySelector('.fullscreen-controls').classList.add('expanded'); // a swipe up opens it
+  await Promise.resolve(); // (observer callbacks run in this microtask checkpoint, before a frame)
+  assert.equal(closes(), 1);
+  assert.ok(!document.querySelector('.fullscreen-controls').classList.contains('expanded'));
+});
+
+test('...and left alone when the end-screen setting is off', async () => {
+  const { document, closes } = fullscreenPhonePage({ hide: { ytEndscreen: false } });
+  await sleep(200);
+  document.querySelector('.fullscreen-controls').classList.add('expanded');
+  await sleep(50);
+  assert.equal(closes(), 0);
+});

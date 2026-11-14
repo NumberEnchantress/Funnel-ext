@@ -260,6 +260,14 @@ html[otaat-hide-yt-endscreen] :is(
 ):not(.html5-video-player, #movie_player) {
   display: none !important;
 }
+/* The phone site's fullscreen "More videos" button and the row of recommendations it opens, and the dimming
+   behind that row (youtube.js also closes the row at once, so the player leaves its "expanded" state). */
+html[otaat-hide-yt-endscreen] :is(ytm-fullscreen-related-videos-entry-point-view-model, .fullscreen-watch-next-entrypoint-wrapper, .ytFullscreenVideoRecommendationsHost) {
+  display: none !important;
+}
+html[otaat-hide-yt-endscreen] .player-controls-background.fullscreen-recs-expanded {
+  background: transparent !important;
+}
 
 /* Search results: recommendation shelves YouTube injects between results (Shorts, "For you", "People also watched"). */
 html[otaat-hide-yt-search] ytd-search :is(grid-shelf-view-model, ytd-shelf-renderer, ytd-reel-shelf-renderer, ytd-horizontal-card-list-renderer) {

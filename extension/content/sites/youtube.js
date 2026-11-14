@@ -278,6 +278,28 @@
     document.cookie = `PREF=${value}; domain=.youtube.com; path=/; max-age=${2 * 365 * 24 * 3600}; secure; samesite=lax`;
   }
 
+  /**
+   * Phone site, fullscreen: a swipe up opens a row of recommended videos over a dimmed video. With the
+   * end-screen setting on, close it at once through YouTube's own Close button, so the player also leaves
+   * its "expanded" state (hiding the row alone would leave the video dimmed and empty). A mutation callback
+   * runs before the next frame, so the row is never painted. (From the Android app, where it was verified.)
+   */
+  function closeFullscreenRecommendations() {
+    if (!document.fullscreenElement || !O.settings || !O.settings.hide.ytEndscreen) return;
+    if (!document.querySelector('.fullscreen-controls.expanded')) return;
+    const close = [...document.querySelectorAll('.icon-close button, button[aria-label="Close"]')].find((b) =>
+      b.closest('.icon-close, .player-controls-content, #player-control-container, .html5-video-player, player-fullscreen-controls')
+    );
+    if (close) close.click();
+  }
+  if (isMobile()) {
+    new MutationObserver(closeFullscreenRecommendations).observe(document, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+  }
+
   O.adapters.youtube = {
     site: 'youtube',
     matches: (host) => /(^|\.)youtube\.com$/.test(host),
